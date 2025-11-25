@@ -1,5 +1,7 @@
 {
-  "name": "test-api-web-project",
+  "name": "base-app-project",
+  "author": "",
+  "license": "ISC",
   "version": "1.0.0",
   "description": "Monorepo with Angular frontend and NestJS backend",
   "main": "index.js",
@@ -18,8 +20,6 @@
     "install:all": "npm run install:backend && npm run install:frontend"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "concurrently": "^9.1.2"
   }
