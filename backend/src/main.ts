@@ -56,4 +56,4 @@ async function bootstrap() {
   console.log('************************************************');
 }
 
-bootstrap();
+void bootstrap();
