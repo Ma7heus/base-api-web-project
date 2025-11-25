@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
+const API_PREFIX = process.env.API_PREFIX || 'api/v1';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:4200';
+
 @Injectable()
 export class AppService {
   getHello(): string {
@@ -17,9 +20,9 @@ export class AppService {
   </head>
   <body>
     <h1>Bem-vindo à Base API Web Project!</h1>
-    <p><a href="/app">Health Check</a></p>
-    <p><a href="/docs">Documentação</a></p>
-    <p><a href="/api/v1/health">App Web</a></p>
+    <p><a href="/${API_PREFIX}/status">Health Check</a></p>
+    <p><a href="/api/docs">Documentação</a></p>
+    <p><a href="${FRONTEND_URL}">App Web</a></p>
   </body>
 </html>`;
   }
