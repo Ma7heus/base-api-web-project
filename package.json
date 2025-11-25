@@ -17,7 +17,8 @@
     "test:both": "npm run test:backend && npm run test:frontend",
     "install:backend": "cd backend && npm install",
     "install:frontend": "cd frontend && npm install",
-    "install:all": "npm run install:backend && npm run install:frontend"
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "generate:secret": "node backend/src/core/scripts/generate-jwt-secret.js"
   },
   "keywords": [],
   "devDependencies": {
