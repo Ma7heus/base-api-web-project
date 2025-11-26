@@ -33,6 +33,7 @@ services:
   # ================================================
   backend:
     image: ghcr.io/${GITHUB_USERNAME}/base-api-web-project-backend:latest
+    pull_policy: always
     container_name: app_backend_prod
     environment:
       NODE_ENV: production
@@ -61,6 +62,7 @@ services:
   # ================================================
   frontend:
     image: ghcr.io/${GITHUB_USERNAME}/base-api-web-project-frontend:latest
+    pull_policy: always
     container_name: app_frontend_prod
     depends_on:
       - backend
