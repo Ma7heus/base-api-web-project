@@ -22,23 +22,29 @@ RUN npm run build -- --configuration production
 # Stage 2: Production com Nginx
 FROM nginx:alpine AS production
 
+# Criar diretórios temporários para nginx não-root
+RUN mkdir -p /tmp/nginx/client_temp \
+    /tmp/nginx/proxy_temp \
+    /tmp/nginx/fastcgi_temp \
+    /tmp/nginx/uwsgi_temp \
+    /tmp/nginx/scgi_temp && \
+    chown -R nginx:nginx /tmp/nginx && \
+    chmod -R 755 /tmp/nginx
+
 # Copiar configuração customizada do nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copiar build do stage anterior
 COPY --from=builder /app/dist/frontend/browser /usr/share/nginx/html
 
-# Usuário não-root para segurança
-RUN chown -R nginx:nginx /usr/share/nginx/html && \
-    chown -R nginx:nginx /var/cache/nginx && \
-    chown -R nginx:nginx /var/log/nginx && \
-    touch /var/run/nginx.pid && \
-    chown -R nginx:nginx /var/run/nginx.pid
+# Ajustar permissões dos arquivos estáticos
+RUN chown -R nginx:nginx /usr/share/nginx/html
 
+# Trocar para usuário não-root
 USER nginx
 
 # Expor porta (será ignorada pelo Coolify)
-EXPOSE 80
+EXPOSE 8080
 
 # Comando para iniciar o nginx
 CMD ["nginx", "-g", "daemon off;"]
