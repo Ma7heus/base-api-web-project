@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import database from '../database/dbconnect';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -20,6 +21,21 @@ const swaggerConfig = new DocumentBuilder()
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  //CONFIGURANDO HELMET (HEADERS DE SEGURANÇA)
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+          scriptSrc: ["'self'"],
+        },
+      },
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
 
   //CONFIGURANDO VALIDATION PIPE GLOBAL
   app.useGlobalPipes(
