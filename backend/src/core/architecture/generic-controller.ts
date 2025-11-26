@@ -115,11 +115,9 @@ export class GenericCrudController<
     description: 'Registro encontrado com sucesso',
   })
   @ApiResponse({ status: 404, description: 'Registro não encontrado' })
-  async getById(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<ResponseDTO | null> {
+  async getById(@Param('id', ParseIntPipe) id: number): Promise<ResponseDTO> {
     const entity = await this.service.getById(id);
-    return entity ? this.toResponseDto(entity) : null;
+    return this.toResponseDto(entity);
   }
 
   @Post()
@@ -146,10 +144,10 @@ export class GenericCrudController<
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateDTO,
-  ): Promise<ResponseDTO | null> {
+  ): Promise<ResponseDTO> {
     const data = this.toPlainObject(updateDto);
     const updated = await this.service.update(id, data as Partial<T>);
-    return updated ? this.toResponseDto(updated) : null;
+    return this.toResponseDto(updated);
   }
 
   @Delete(':id')
@@ -157,7 +155,10 @@ export class GenericCrudController<
   @ApiParam({ name: 'id', type: Number, description: 'ID do registro' })
   @ApiResponse({ status: 200, description: 'Registro deletado com sucesso' })
   @ApiResponse({ status: 404, description: 'Registro não encontrado' })
-  async delete(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
-    return this.service.delete(id);
+  async delete(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<{ message: string }> {
+    await this.service.delete(id);
+    return { message: 'Registro deletado com sucesso' };
   }
 }
