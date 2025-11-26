@@ -1,4 +1,4 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude } from 'class-transformer';
 
 /**
  * DTO base para respostas (GET).
@@ -6,8 +6,10 @@ import { Exclude, Expose } from 'class-transformer';
  */
 @Exclude()
 export abstract class AbstractResponseDTO {
-  @Expose()
-  id: number | string;
+  //@Expose()
+  //id: number | string;
+
+  abstract getId(): number | string;
 }
 
 /**

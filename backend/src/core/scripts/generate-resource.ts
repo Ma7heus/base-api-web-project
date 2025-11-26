@@ -109,6 +109,10 @@ export class ${className}ResponseDto extends AbstractResponseDTO {
   @Expose()
   @ApiProperty({ description: 'Data de atualização' })
   updatedAt: Date;
+
+  getId(): number | string {
+    return this.id;
+  }
 }
 `;
 };
