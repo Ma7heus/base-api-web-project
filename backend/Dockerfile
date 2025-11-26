@@ -27,14 +27,17 @@ WORKDIR /app
 # Copiar arquivos de dependências
 COPY package*.json ./
 
-# Instalar apenas dependências de produção
-RUN npm ci --only=production && npm cache clean --force
+# Instalar apenas dependências de produção (novo formato)
+RUN npm ci --omit=dev && npm cache clean --force
 
 # Copiar build do stage anterior
 COPY --from=builder /app/dist ./dist
 
 # Copiar pasta database (migrations, schema)
 COPY --from=builder /app/database ./database
+
+# Copiar tsconfig para resolução de paths (se necessário)
+COPY --from=builder /app/tsconfig*.json ./
 
 # Usuário não-root para segurança
 RUN addgroup -g 1001 -S nodejs && \
@@ -47,4 +50,4 @@ USER nestjs
 EXPOSE 3000
 
 # Comando para iniciar a aplicação
-CMD ["npm", "run", "start:prod"]
+CMD ["node", "dist/src/main.js"]
