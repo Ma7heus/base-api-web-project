@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -19,6 +20,23 @@ import AppDataSource from '../database/ormconfig';
       ...AppDataSource.options,
       autoLoadEntities: true,
     }),
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 1000,
+        limit: 3,
+      },
+      {
+        name: 'medium',
+        ttl: 10000,
+        limit: 20,
+      },
+      {
+        name: 'long',
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
     AuthModule,
     UserModule,
   ],
@@ -32,6 +50,10 @@ import AppDataSource from '../database/ormconfig';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

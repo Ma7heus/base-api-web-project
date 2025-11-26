@@ -5,6 +5,7 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
@@ -18,13 +19,18 @@ export class AuthController {
 
   @Public()
   @Post('login')
-  @ApiOperation({ summary: 'Realizar login' })
+  @Throttle({ short: { ttl: 60000, limit: 5 } })
+  @ApiOperation({ summary: 'Realizar login (máx. 5 tentativas por minuto)' })
   @ApiResponse({
     status: 200,
     description: 'Login realizado com sucesso',
     type: LoginResponseDto,
   })
   @ApiResponse({ status: 401, description: 'Credenciais inválidas' })
+  @ApiResponse({
+    status: 429,
+    description: 'Muitas tentativas. Tente novamente mais tarde.',
+  })
   async login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
     return this.authService.login(loginDto);
   }
