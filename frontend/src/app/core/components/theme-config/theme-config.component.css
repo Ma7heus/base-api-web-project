@@ -1,0 +1,94 @@
+/* Botão flutuante */
+.theme-config-button {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9999;
+  box-shadow: var(--shadow-xl);
+  transition: all var(--transition-duration) var(--transition-timing);
+}
+
+.theme-config-button:hover {
+  transform: scale(1.1) rotate(15deg);
+}
+
+/* Drawer */
+:host ::ng-deep .theme-config-drawer .p-drawer-header {
+  padding: 1.5rem;
+  background-color: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+:host ::ng-deep .theme-config-drawer .p-drawer-content {
+  padding: 0;
+  background-color: var(--surface-color-light);
+}
+
+/* Content */
+.theme-config-content h3 {
+  color: var(--text-color);
+  margin: 0;
+}
+
+/* Color Grid */
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.color-option {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all var(--transition-duration) var(--transition-timing);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid transparent;
+  box-shadow: var(--shadow);
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-lg);
+}
+
+.color-option.selected {
+  border-color: var(--text-color);
+  box-shadow: var(--shadow-xl);
+  transform: scale(1.05);
+}
+
+.color-option i {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Preview Card */
+.preview-card {
+  background-color: var(--surface-color);
+}
+
+/* Theme Info */
+.theme-info {
+  background-color: var(--surface-color);
+}
+
+/* Responsividade */
+@media (max-width: 576px) {
+  :host ::ng-deep .theme-config-drawer {
+    width: 100% !important;
+  }
+
+  .theme-config-button {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .color-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

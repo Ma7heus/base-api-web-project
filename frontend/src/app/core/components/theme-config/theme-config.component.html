@@ -1,0 +1,92 @@
+<!-- Botão flutuante para abrir configurações -->
+<button
+  pButton
+  type="button"
+  icon="pi pi-palette"
+  class="theme-config-button p-button-rounded p-button-lg"
+  (click)="toggle()"
+  pTooltip="Configurar Tema"
+  tooltipPosition="left"
+></button>
+
+<!-- Drawer de configuração -->
+<p-drawer
+  [(visible)]="visible"
+  position="right"
+  [style]="{ width: '400px' }"
+  styleClass="theme-config-drawer"
+>
+  <ng-template pTemplate="header">
+    <div class="flex align-items-center gap-2">
+      <i class="pi pi-palette text-xl"></i>
+      <span class="font-semibold text-xl">Configurar Tema</span>
+    </div>
+  </ng-template>
+
+  <div class="theme-config-content p-3">
+    <!-- Modo Dark/Light -->
+    <div class="mb-5">
+      <h3 class="text-lg font-semibold mb-3">Modo de Exibição</h3>
+      <div class="flex align-items-center justify-content-between surface-card p-3 border-round">
+        <div class="flex align-items-center gap-2">
+          <i [class]="themeService.dark() ? 'pi pi-moon' : 'pi pi-sun'" class="text-xl"></i>
+          <span class="font-medium">{{ themeService.dark() ? 'Modo Escuro' : 'Modo Claro' }}</span>
+        </div>
+        <p-toggleSwitch
+          [(ngModel)]="themeService['isDarkMode']"
+          (ngModelChange)="toggleDarkMode($event)"
+        ></p-toggleSwitch>
+      </div>
+      <p class="text-sm text-color-secondary mt-2 mb-0">
+        Alterne entre o tema claro e escuro
+      </p>
+    </div>
+
+    <!-- Seleção de Cor Primária -->
+    <div class="mb-4">
+      <h3 class="text-lg font-semibold mb-3">Cor Primária</h3>
+      <div class="color-grid">
+        @for (color of availableColors; track color.value) {
+          <div
+            class="color-option"
+            [class.selected]="isColorSelected(color.value)"
+            (click)="selectColor(color.value)"
+            [style.background-color]="color.value"
+            [pTooltip]="color.name"
+            tooltipPosition="top"
+          >
+            @if (isColorSelected(color.value)) {
+              <i class="pi pi-check text-white"></i>
+            }
+          </div>
+        }
+      </div>
+      <p class="text-sm text-color-secondary mt-2 mb-0">
+        Escolha a cor que será usada como destaque principal
+      </p>
+    </div>
+
+    <!-- Preview do Tema Atual -->
+    <div class="mb-4">
+      <h3 class="text-lg font-semibold mb-3">Preview</h3>
+      <div class="preview-card surface-card p-3 border-round">
+        <div class="flex flex-column gap-2">
+          <button pButton label="Botão Primário" class="p-button"></button>
+          <button pButton label="Botão Outlined" class="p-button-outlined"></button>
+          <button pButton label="Botão Text" class="p-button-text"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informações do Tema -->
+    <div class="theme-info surface-card p-3 border-round">
+      <div class="flex align-items-center gap-2 mb-2">
+        <i class="pi pi-info-circle text-color-secondary"></i>
+        <span class="font-semibold">Informações</span>
+      </div>
+      <p class="text-sm text-color-secondary mb-0">
+        Suas preferências de tema são salvas automaticamente e serão restauradas na próxima vez que você acessar.
+      </p>
+    </div>
+  </div>
+</p-drawer>

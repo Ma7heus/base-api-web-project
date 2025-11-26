@@ -1,1 +1,264 @@
-/* You can add global styles to this file, and also import other style files */
+/* ==========================================================================
+   Variáveis CSS Customizadas para Temas
+   Inspirado no Sakai-NG
+   ========================================================================== */
+
+:root {
+  /* Cores primárias (definidas dinamicamente pelo ThemeService) */
+  --primary-color: #6366f1;
+  --primary-color-light: #818cf8;
+  --primary-color-dark: #4f46e5;
+
+  /* Cores de superfície */
+  --surface-color: #ffffff;
+  --surface-color-light: #f9fafb;
+  --surface-color-dark: #f3f4f6;
+
+  /* Cores de texto */
+  --text-color: #1e293b;
+  --text-color-secondary: #64748b;
+
+  /* Bordas */
+  --border-color: #e2e8f0;
+  --border-radius: 8px;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+  /* Transições */
+  --transition-duration: 0.2s;
+  --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   Reset e Base
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  color: var(--text-color);
+  background-color: var(--surface-color-light);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   Tema Dark
+   ========================================================================== */
+
+.dark-theme {
+  --surface-color: #1e293b;
+  --surface-color-light: #334155;
+  --surface-color-dark: #0f172a;
+  --text-color: #f1f5f9;
+  --text-color-secondary: #cbd5e1;
+  --border-color: #334155;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+}
+
+.dark-theme body {
+  background-color: var(--surface-color-dark);
+}
+
+/* ==========================================================================
+   Override PrimeNG com Variáveis Customizadas
+   ========================================================================== */
+
+/* Botões */
+.p-button {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+  transition: all var(--transition-duration) var(--transition-timing);
+}
+
+.p-button:hover {
+  background-color: var(--primary-color-dark);
+  border-color: var(--primary-color-dark);
+}
+
+.p-button:focus {
+  box-shadow: 0 0 0 0.2rem rgba(var(--primary-color), 0.5);
+}
+
+/* Input fields */
+.p-inputtext {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.p-inputtext:enabled:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(var(--primary-color), 0.2);
+}
+
+/* Cards */
+.p-card {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow);
+}
+
+/* Tabelas */
+.p-datatable .p-datatable-thead > tr > th {
+  background-color: var(--surface-color-light);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background-color: var(--surface-color-light);
+}
+
+/* Menus */
+.p-menubar {
+  background-color: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+.p-menubar .p-menuitem-link:hover {
+  background-color: var(--surface-color-light);
+}
+
+.p-menubar .p-menuitem-link:focus {
+  box-shadow: inset 0 0 0 0.15rem var(--primary-color);
+}
+
+/* Sidebar */
+.p-sidebar {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+}
+
+/* Dialog */
+.p-dialog {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.p-dialog .p-dialog-header {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+/* Toast */
+.p-toast .p-toast-message {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.p-toast .p-toast-message-success {
+  background-color: #10b981;
+  border-color: #059669;
+  color: white;
+}
+
+.p-toast .p-toast-message-error {
+  background-color: #ef4444;
+  border-color: #dc2626;
+  color: white;
+}
+
+.p-toast .p-toast-message-warn {
+  background-color: #f59e0b;
+  border-color: #d97706;
+  color: white;
+}
+
+.p-toast .p-toast-message-info {
+  background-color: #3b82f6;
+  border-color: #2563eb;
+  color: white;
+}
+
+/* ==========================================================================
+   Utilitários
+   ========================================================================== */
+
+.surface-card {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+}
+
+.surface-section {
+  background-color: var(--surface-color-light);
+}
+
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.border-primary {
+  border-color: var(--primary-color) !important;
+}
+
+/* ==========================================================================
+   Scrollbar Customizada (tema dark)
+   ========================================================================== */
+
+.dark-theme ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.dark-theme ::-webkit-scrollbar-track {
+  background: var(--surface-color-dark);
+}
+
+.dark-theme ::-webkit-scrollbar-thumb {
+  background: var(--surface-color-light);
+  border-radius: 5px;
+}
+
+.dark-theme ::-webkit-scrollbar-thumb:hover {
+  background: var(--border-color);
+}
+
+/* ==========================================================================
+   Responsividade
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  html {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 576px) {
+  html {
+    font-size: 12px;
+  }
+}

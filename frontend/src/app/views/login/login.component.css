@@ -1,0 +1,119 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+  padding: 2rem 1rem;
+}
+
+.login-content {
+  width: 100%;
+  max-width: 450px;
+}
+
+/* Card Header */
+.card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 2rem 1rem;
+  text-align: center;
+}
+
+/* Login Card */
+:host ::ng-deep .login-card {
+  box-shadow: var(--shadow-xl);
+  border: none;
+}
+
+:host ::ng-deep .login-card .p-card-header {
+  background-color: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+:host ::ng-deep .login-card .p-card-body {
+  padding: 2rem;
+}
+
+:host ::ng-deep .login-card .p-card-footer {
+  padding: 1.5rem 2rem;
+  background-color: var(--surface-color-light);
+  border-top: 1px solid var(--border-color);
+}
+
+/* Form Fields */
+.field {
+  margin-bottom: 0;
+}
+
+.field label {
+  color: var(--text-color);
+}
+
+/* Input customization */
+:host ::ng-deep .p-inputtext {
+  width: 100%;
+}
+
+:host ::ng-deep .p-password {
+  width: 100%;
+}
+
+:host ::ng-deep .p-password input {
+  width: 100%;
+}
+
+/* Botão */
+:host ::ng-deep .p-button {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+:host ::ng-deep .p-button:hover {
+  background-color: var(--primary-color-dark);
+  border-color: var(--primary-color-dark);
+}
+
+/* Error states */
+:host ::ng-deep .ng-invalid.ng-dirty {
+  border-color: #ef4444;
+}
+
+:host ::ng-deep .ng-invalid.ng-dirty:enabled:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2);
+}
+
+/* Message */
+:host ::ng-deep .p-message {
+  margin-bottom: 1rem;
+}
+
+/* Links */
+a {
+  transition: all var(--transition-duration) var(--transition-timing);
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* Responsividade */
+@media (max-width: 576px) {
+  .login-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .card-header {
+    padding: 1.5rem 1rem 0.5rem;
+  }
+
+  :host ::ng-deep .login-card .p-card-body {
+    padding: 1.5rem 1rem;
+  }
+
+  :host ::ng-deep .login-card .p-card-footer {
+    padding: 1rem;
+  }
+}

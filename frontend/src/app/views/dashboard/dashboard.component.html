@@ -1,0 +1,99 @@
+<div class="dashboard">
+  <!-- Welcome Section -->
+  @if (authService.currentUser(); as user) {
+    <div class="welcome-section">
+      <h1>Olá, {{ user.name }}! 👋</h1>
+      <p>Bem-vindo ao seu painel de controle</p>
+    </div>
+  }
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    @for (stat of stats; track stat.title) {
+      <div class="stat-card" [style.border-left-color]="stat.color">
+        <div class="stat-icon">{{ stat.icon }}</div>
+        <div class="stat-content">
+          <h3 class="stat-value">{{ stat.value }}</h3>
+          <p class="stat-title">{{ stat.title }}</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Info Cards -->
+  <div class="info-section">
+    <div class="info-card">
+      <h2>🎯 Suas Informações</h2>
+      @if (authService.currentUser(); as user) {
+        <div class="user-data">
+          <div class="data-row">
+            <span class="label">Nome:</span>
+            <span class="value">{{ user.name }}</span>
+          </div>
+          <div class="data-row">
+            <span class="label">Email:</span>
+            <span class="value">{{ user.email }}</span>
+          </div>
+          <div class="data-row">
+            <span class="label">Role:</span>
+            <span class="badge" [class.admin]="user.role === 'ADMIN'">
+              {{ user.role }}
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="info-card">
+      <h2>📋 Ações Rápidas</h2>
+      <div class="quick-actions">
+        <button class="action-btn">
+          <span>📝</span>
+          <span>Nova Tarefa</span>
+        </button>
+        <button class="action-btn">
+          <span>📊</span>
+          <span>Relatórios</span>
+        </button>
+        <button class="action-btn">
+          <span>⚙️</span>
+          <span>Configurações</span>
+        </button>
+        @if (authService.isAdmin()) {
+          <button class="action-btn admin">
+            <span>🔐</span>
+            <span>Painel Admin</span>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="activity-section">
+    <h2>Atividades Recentes</h2>
+    <div class="activity-list">
+      <div class="activity-item">
+        <div class="activity-icon">✅</div>
+        <div class="activity-content">
+          <p class="activity-text">Login realizado com sucesso</p>
+          <span class="activity-time">Agora mesmo</span>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon">📄</div>
+        <div class="activity-content">
+          <p class="activity-text">Documento atualizado</p>
+          <span class="activity-time">5 minutos atrás</span>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon">👤</div>
+        <div class="activity-content">
+          <p class="activity-text">Perfil visualizado</p>
+          <span class="activity-time">1 hora atrás</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

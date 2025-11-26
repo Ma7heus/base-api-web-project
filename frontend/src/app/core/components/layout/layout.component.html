@@ -1,0 +1,50 @@
+<div class="layout">
+  <!-- Header com PrimeNG Menubar -->
+  <p-menubar [model]="menuItems" styleClass="layout-menubar">
+    <ng-template pTemplate="start">
+      <div class="flex align-items-center gap-2">
+        <i class="pi pi-box text-2xl text-primary"></i>
+        <span class="font-bold text-xl">Base API</span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="end">
+      <div class="flex align-items-center gap-3">
+        <!-- User Info -->
+        @if (authService.currentUser(); as user) {
+          <div class="flex align-items-center gap-2">
+            <p-avatar
+              [label]="user.name.charAt(0).toUpperCase()"
+              styleClass="bg-primary text-white"
+              shape="circle"
+            ></p-avatar>
+            <div class="hidden md:flex flex-column">
+              <span class="font-semibold text-sm">{{ user.name }}</span>
+              <span class="text-xs text-color-secondary">{{ user.role }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- Logout Button -->
+        <button
+          pButton
+          type="button"
+          icon="pi pi-sign-out"
+          label="Sair"
+          class="p-button-text p-button-sm"
+          (click)="logout()"
+          pTooltip="Sair"
+          tooltipPosition="bottom"
+        ></button>
+      </div>
+    </ng-template>
+  </p-menubar>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Theme Config Component -->
+  <app-theme-config></app-theme-config>
+</div>

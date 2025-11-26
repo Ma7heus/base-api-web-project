@@ -1,0 +1,93 @@
+<div class="login-container">
+  <div class="login-content">
+    <!-- Card de Login -->
+    <p-card styleClass="login-card">
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <i class="pi pi-shield text-6xl text-primary mb-3"></i>
+          <h1 class="text-3xl font-bold mb-2">Bem-vindo</h1>
+          <p class="text-color-secondary">Faça login para continuar</p>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <!-- Mensagem de erro global -->
+        @if (errorMessage()) {
+          <p-message severity="error" [text]="errorMessage() ?? ''" styleClass="w-full mb-3"></p-message>
+        }
+
+        <!-- Formulário -->
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-4">
+          <!-- Campo Email -->
+          <div class="field">
+            <label for="email" class="block font-semibold mb-2">Email</label>
+            <span class="p-input-icon-left w-full">
+              <i class="pi pi-envelope"></i>
+              <input
+                pInputText
+                type="email"
+                id="email"
+                formControlName="email"
+                placeholder="seu@email.com"
+                class="w-full"
+                [class.ng-invalid]="hasError('email')"
+                [class.ng-dirty]="loginForm.get('email')?.touched"
+              />
+            </span>
+            @if (hasError('email')) {
+              <small class="p-error block mt-1">{{ getErrorMessage('email') }}</small>
+            }
+          </div>
+
+          <!-- Campo Senha -->
+          <div class="field">
+            <label for="password" class="block font-semibold mb-2">Senha</label>
+            <p-password
+              formControlName="password"
+              placeholder="Digite sua senha"
+              [toggleMask]="true"
+              [feedback]="false"
+              styleClass="w-full"
+              inputStyleClass="w-full"
+              [class.ng-invalid]="hasError('password')"
+              [class.ng-dirty]="loginForm.get('password')?.touched"
+            ></p-password>
+            @if (hasError('password')) {
+              <small class="p-error block mt-1">{{ getErrorMessage('password') }}</small>
+            }
+          </div>
+
+          <!-- Botão de Submit -->
+          <button
+            pButton
+            type="submit"
+            label="Entrar"
+            icon="pi pi-sign-in"
+            [loading]="isLoading()"
+            [disabled]="loginForm.invalid"
+            class="w-full p-button-lg"
+          ></button>
+        </form>
+      </ng-template>
+
+      <ng-template pTemplate="footer">
+        <div class="flex justify-content-center">
+          <span class="text-sm text-color-secondary">
+            Esqueceu sua senha?
+            <a href="#" class="text-primary font-semibold no-underline ml-1">Recuperar senha</a>
+          </span>
+        </div>
+      </ng-template>
+    </p-card>
+
+    <!-- Informações adicionais -->
+    <div class="text-center mt-4">
+      <p class="text-sm text-color-secondary">
+        &copy; 2025 Base API Web Project. Todos os direitos reservados.
+      </p>
+    </div>
+  </div>
+
+  <!-- Theme Config -->
+  <app-theme-config></app-theme-config>
+</div>

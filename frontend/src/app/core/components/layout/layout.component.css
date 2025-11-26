@@ -1,0 +1,62 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--surface-color-light);
+}
+
+/* Menubar personalizado */
+:host ::ng-deep .layout-menubar {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: var(--shadow-md);
+}
+
+:host ::ng-deep .layout-menubar .p-menubar-root-list {
+  gap: 0.5rem;
+}
+
+:host ::ng-deep .layout-menubar .p-menuitem-link {
+  border-radius: var(--border-radius);
+  transition: all var(--transition-duration) var(--transition-timing);
+}
+
+:host ::ng-deep .layout-menubar .p-menuitem-link:hover {
+  background-color: var(--surface-color-light);
+}
+
+:host ::ng-deep .layout-menubar .p-menuitem-link.router-link-active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+:host ::ng-deep .layout-menubar .p-menuitem-link.router-link-active .p-menuitem-icon,
+:host ::ng-deep .layout-menubar .p-menuitem-link.router-link-active .p-menuitem-text {
+  color: white;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+
+  :host ::ng-deep .layout-menubar .p-menubar-button {
+    display: flex;
+  }
+}
