@@ -81,11 +81,23 @@ async function databaseName(): Promise<string> {
   }
 }
 
+async function countAppliedMigrations(): Promise<number> {
+  try {
+    const result = await executeQuery<{ applied_migrations: string }>(
+      'SELECT COUNT(*) AS applied_migrations FROM migrations',
+    );
+    return parseInt(result[0].applied_migrations, 10);
+  } catch (error: any) {
+    throw new Error(`Error counting applied migrations: ${error.message}`);
+  }
+}
+
 export default {
-  executeQuery,
-  getDatabaseVersion,
-  maxConnections,
-  getConnections,
   databaseName,
   initDatabase,
+  executeQuery,
+  maxConnections,
+  getConnections,
+  getDatabaseVersion,
+  countAppliedMigrations,
 };

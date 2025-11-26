@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import database from '../database/dbconnect';
 
 const API_PREFIX = process.env.API_PREFIX || 'api/v1';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:4200';
@@ -25,5 +26,21 @@ export class AppService {
     <p><a href="${FRONTEND_URL}">App Web</a></p>
   </body>
 </html>`;
+  }
+
+  async getStatus(): Promise<any> {
+    const status = {
+      status: 'ok',
+      database: {
+        name: await database.databaseName(),
+        databaseVersion: await database.getDatabaseVersion(),
+        maxConnections: await database.maxConnections(),
+        currentConnections: await database.getConnections(),
+        applied_migrations: await database.countAppliedMigrations(),
+        migrations: await database.executeQuery('SELECT * FROM migrations'),
+      },
+    };
+
+    return status;
   }
 }
