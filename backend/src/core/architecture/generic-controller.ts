@@ -9,7 +9,13 @@ import {
   ParseIntPipe,
   Controller,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 import {
   instanceToPlain,
   plainToInstance,
@@ -61,6 +67,7 @@ export class GenericCrudController<
   }
 
   @Get()
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Buscar todos os registros' })
   @ApiResponse({
     status: 200,
