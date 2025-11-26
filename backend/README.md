@@ -367,20 +367,65 @@ export class OrderController {
 }
 ```
 
-### Roles de Usuário
+### Roles de Usuário e Autorização
 
-A entidade `User` possui um campo `role` com os valores:
-
-- `ADMIN` - Administrador
-- `USER` - Usuário comum
+Use o decorator `@Roles()` para restringir endpoints por role:
 
 ```typescript
+import { Roles } from '../core/auth';
 import { UserRole } from '../models/user.entity';
 
-// Verificar role do usuário
-if (user.role === UserRole.ADMIN) {
-  // Lógica para admin
+@Controller('admin')
+export class AdminController {
+  @Roles(UserRole.ADMIN)
+  @Delete(':id')
+  deleteUser(@Param('id') id: number) {
+    // Apenas ADMIN pode acessar
+  }
 }
+```
+
+## Segurança
+
+A API implementa múltiplas camadas de proteção:
+
+### Proteções Implementadas
+
+| Proteção | Descrição |
+|----------|-----------|
+| **SQL Injection** | TypeORM usa queries parametrizadas. **Nunca use queries raw com input do usuário.** |
+| **Validação de Input** | `ValidationPipe` global com whitelist. Campos não declarados no DTO são rejeitados. |
+| **Senha Forte** | Mínimo 8 caracteres, maiúscula, minúscula, número e caractere especial obrigatórios. |
+| **Bcrypt** | Senhas hasheadas com 10 salt rounds. Nunca armazene senhas em texto plano. |
+| **Rate Limiting** | Limite global de requests. Login: máx. 5 tentativas/minuto por IP. |
+| **Headers de Segurança** | Helmet.js adiciona X-Frame-Options, HSTS, CSP, etc. |
+| **CORS** | Configurado via `CORS_ORIGINS`. Em produção, especifique domínios explícitos. |
+| **JWT** | Tokens assinados com `JWT_SECRET`. **Use uma chave forte e única em produção.** |
+| **RolesGuard** | Controle de acesso por role (ADMIN/USER). |
+
+### Boas Práticas
+
+```bash
+# Em produção, NUNCA use valores padrão para:
+JWT_SECRET=chave-muito-longa-e-aleatoria-minimo-32-caracteres
+DB_PASSWORD=senha-forte-do-banco
+ADMIN_PASSWORD=SenhaAdmin@Forte123
+```
+
+### Rate Limiting por Endpoint
+
+```typescript
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
+
+// Limite customizado (10 requests por minuto)
+@Throttle({ short: { ttl: 60000, limit: 10 } })
+@Post('sensitive')
+sensitiveEndpoint() { }
+
+// Desabilitar rate limit
+@SkipThrottle()
+@Get('public')
+publicEndpoint() { }
 ```
 
 ## API Documentation
@@ -480,6 +525,8 @@ export class ProductResponseDto extends AbstractResponseDTO {
 - **Swagger** - Documentação da API
 - **class-validator** - Validação de DTOs
 - **class-transformer** - Transformação de objetos
+- **@nestjs/throttler** - Rate limiting
+- **helmet** - Headers de segurança HTTP
 
 ## License
 
