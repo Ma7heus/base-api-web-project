@@ -29,4 +29,25 @@ const AppDataSource = new DataSource({
       },
 });
 
+// const AppDataSource = new DataSource({
+//   type: 'mysql',
+//   host: host,
+//   port: parseInt(process.env.DB_PORT || '3306', 10),
+//   username: user,
+//   password: password,
+//   database: database,
+//   synchronize: false,
+//   logging: false,
+//   entities: [path.join(__dirname, '../src/models/*.{ts,js}')],
+//   migrations: [path.join(__dirname, './migrations/*.{ts,js}')],
+//   extra: localDb
+//     ? {
+//         connectionLimit: 50,
+//       }
+//     : {
+//         connectionLimit: 50,
+//         ssl: { rejectUnauthorized: true },
+//       },
+// });
+
 export default AppDataSource;
