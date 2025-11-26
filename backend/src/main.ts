@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import database from '../database/dbconnect';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -12,23 +13,22 @@ const swaggerConfig = new DocumentBuilder()
   .setTitle('App base API')
   .setDescription('API base para projetos em NestJS')
   .setVersion('1.0')
-  .addBearerAuth(
-    {
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-      name: 'JWT',
-      description: 'Insira o token JWT',
-      in: 'header',
-    },
-    'JWT-auth',
-  )
-  .addTag('auth', 'Autenticação de usuários')
+  .addBearerAuth()
+  .addTag('Auth', 'Autenticação de usuários')
   .addTag('status', 'Verificação de status da API')
   .build();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  //CONFIGURANDO VALIDATION PIPE GLOBAL
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
   //CONFIGURANDO CORS
   app.enableCors({

@@ -18,9 +18,14 @@ backend/
 │   │   │   ├── generic-service.ts
 │   │   │   ├── generic-controller.ts
 │   │   │   └── index.ts
+│   │   ├── auth/            # Módulo de autenticação JWT
+│   │   │   ├── decorators/   # @Public(), @CurrentUser()
+│   │   │   ├── guards/       # JwtAuthGuard (global)
+│   │   │   ├── strategies/   # JwtStrategy
+│   │   │   └── dto/
 │   │   └── scripts/         # Scripts utilitários
 │   │       ├── generate-resource.ts
-│   │       ├── generate-jwt-secret.js
+│   │       ├── seed-admin.ts
 │   │       └── run-migrations.ts
 │   ├── models/              # Entities do TypeORM (centralizadas)
 │   │   ├── user.entity.ts
@@ -187,9 +192,12 @@ npm run test:e2e        # Testes end-to-end
 
 # Banco de Dados
 npm run migration:create [nome]     # Cria migration vazia
-npm run migration:generate [nome]   # Gera migration a partir das entities
+npm run migration:generate -- [nome]  # Gera migration a partir das entities
 npm run migration:up                # Executa migrations pendentes
 npm run migration:revert            # Reverte última migration
+
+# Seeds
+npm run seed:admin                  # Cria usuário admin inicial
 
 # Geração de Código
 npm run generate:resource [nome]    # Gera novo módulo CRUD
@@ -220,8 +228,14 @@ DB_DATABASE=nome_do_banco
 # CORS
 CORS_ORIGINS=http://localhost:3000,http://localhost:4200
 
-# JWT (se aplicável)
-JWT_SECRET=sua_chave_secreta
+# JWT
+JWT_SECRET=sua-chave-secreta-super-segura-mude-em-producao
+JWT_EXPIRES_IN=7d
+
+# Admin Seed (para criar usuário admin inicial)
+ADMIN_NAME=Administrador
+ADMIN_EMAIL=admin@admin.com
+ADMIN_PASSWORD=SuaSenhaSegura123
 ```
 
 ### Banco de Dados
@@ -234,6 +248,139 @@ Para ambiente local com Docker:
 
 ```bash
 docker-compose up -d
+```
+
+### Configuração Inicial
+
+Após configurar as variáveis de ambiente e o banco de dados:
+
+```bash
+# 1. Executar migrations
+npm run migration:up
+
+# 2. Criar usuário admin inicial
+npm run seed:admin
+```
+
+## Autenticação JWT
+
+O sistema utiliza autenticação JWT com guard global. **Todos os endpoints são protegidos por padrão**.
+
+### Endpoints de Autenticação
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| POST | `/api/auth/login` | Realizar login | Pública |
+| GET | `/api/auth/me` | Dados do usuário logado | Requer token |
+
+### Fluxo de Autenticação
+
+1. **Login**: Envie email e senha para `/api/auth/login`
+2. **Resposta**: Receba o `access_token` JWT
+3. **Requisições**: Inclua o token no header `Authorization: Bearer <token>`
+
+**Exemplo de login:**
+
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@admin.com", "password": "SuaSenhaSegura123"}'
+```
+
+**Resposta:**
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "id": 1,
+  "name": "Administrador",
+  "email": "admin@admin.com",
+  "role": "ADMIN"
+}
+```
+
+**Usando o token:**
+
+```bash
+curl http://localhost:3000/api/users \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+### Tornando Rotas Públicas
+
+Por padrão, todas as rotas exigem autenticação. Use o decorator `@Public()` para tornar uma rota pública:
+
+```typescript
+import { Public } from '../core/auth';
+
+@Controller('products')
+export class ProductController {
+
+  // Esta rota é pública (não precisa de token)
+  @Public()
+  @Get('featured')
+  getFeaturedProducts() {
+    return this.productService.getFeatured();
+  }
+
+  // Esta rota requer autenticação (padrão)
+  @Get()
+  getAllProducts() {
+    return this.productService.getAll();
+  }
+}
+```
+
+Você também pode aplicar `@Public()` em todo o controller:
+
+```typescript
+@Public()
+@Controller('public-info')
+export class PublicInfoController {
+  // Todas as rotas deste controller são públicas
+}
+```
+
+### Obtendo o Usuário Logado
+
+Use o decorator `@CurrentUser()` para acessar os dados do usuário autenticado:
+
+```typescript
+import { CurrentUser } from '../core/auth';
+
+@Controller('orders')
+export class OrderController {
+
+  @Get('my-orders')
+  getMyOrders(@CurrentUser() user: { id: number; email: string; name: string; role: string }) {
+    return this.orderService.findByUserId(user.id);
+  }
+
+  // Ou pegue apenas um campo específico
+  @Post()
+  createOrder(
+    @CurrentUser('id') userId: number,
+    @Body() createOrderDto: CreateOrderDto
+  ) {
+    return this.orderService.create(userId, createOrderDto);
+  }
+}
+```
+
+### Roles de Usuário
+
+A entidade `User` possui um campo `role` com os valores:
+
+- `ADMIN` - Administrador
+- `USER` - Usuário comum
+
+```typescript
+import { UserRole } from '../models/user.entity';
+
+// Verificar role do usuário
+if (user.role === UserRole.ADMIN) {
+  // Lógica para admin
+}
 ```
 
 ## API Documentation
@@ -328,6 +475,8 @@ export class ProductResponseDto extends AbstractResponseDTO {
 - **NestJS** v11 - Framework Node.js
 - **TypeORM** v0.3 - ORM para banco de dados
 - **PostgreSQL** - Banco de dados
+- **Passport + JWT** - Autenticação
+- **bcrypt** - Hash de senhas
 - **Swagger** - Documentação da API
 - **class-validator** - Validação de DTOs
 - **class-transformer** - Transformação de objetos
