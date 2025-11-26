@@ -1,0 +1,87 @@
+# ================================================
+# DOCKER COMPOSE - PRODUÇÃO (Coolify)
+# ================================================
+# IMPORTANTE: Substitua 'SEU-USUARIO' pelo seu username do GitHub
+# As imagens estarão em: ghcr.io/seu-usuario/base-api-web-project-backend
+# ================================================
+
+services:
+  # ================================================
+  # PostgreSQL 15
+  # ================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: app_postgres_prod
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: '--encoding=UTF8'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ================================================
+  # Backend (NestJS API)
+  # ================================================
+  backend:
+    image: ghcr.io/${GITHUB_USERNAME}/base-api-web-project-backend:latest
+    container_name: app_backend_prod
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ================================================
+  # Frontend (Angular + Nginx)
+  # ================================================
+  frontend:
+    image: ghcr.io/${GITHUB_USERNAME}/base-api-web-project-frontend:latest
+    container_name: app_frontend_prod
+    depends_on:
+      - backend
+    networks:
+      - app_network
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:80']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# ================================================
+# NETWORKS
+# ================================================
+networks:
+  app_network:
+    driver: bridge
+
+# ================================================
+# VOLUMES
+# ================================================
+volumes:
+  postgres_data:
