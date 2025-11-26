@@ -1,3 +1,5 @@
 export abstract class AbstractModel {
-  id: number | string;
+  //id: number | string;
+
+  abstract getId(): number | string;
 }

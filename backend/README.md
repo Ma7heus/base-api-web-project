@@ -1,98 +1,337 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Backend API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API backend construída com [NestJS](https://nestjs.com/), TypeORM e PostgreSQL, seguindo uma arquitetura modular com classes genéricas reutilizáveis.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Estrutura do Projeto
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ npm install
+```
+backend/
+├── database/
+│   ├── migrations/          # Migrations do TypeORM
+│   ├── dbconnect.ts         # Helpers de conexão com BD
+│   └── ormconfig.ts         # Configuração do TypeORM
+├── src/
+│   ├── core/
+│   │   ├── architecture/    # Classes base reutilizáveis
+│   │   │   ├── abstract.model.ts
+│   │   │   ├── abstract.dto.ts
+│   │   │   ├── generic-service.ts
+│   │   │   ├── generic-controller.ts
+│   │   │   └── index.ts
+│   │   └── scripts/         # Scripts utilitários
+│   │       ├── generate-resource.ts
+│   │       ├── generate-jwt-secret.js
+│   │       └── run-migrations.ts
+│   ├── models/              # Entities do TypeORM (centralizadas)
+│   │   ├── user.entity.ts
+│   │   ├── product.entity.ts
+│   │   └── ...
+│   ├── resources/           # Módulos de domínio
+│   │   ├── user/
+│   │   │   ├── dto/
+│   │   │   ├── user.controller.ts
+│   │   │   ├── user.service.ts
+│   │   │   └── user.module.ts
+│   │   ├── product/
+│   │   └── ...
+│   ├── controllers/         # Controllers globais
+│   ├── services/            # Services globais
+│   ├── app.module.ts
+│   └── main.ts
+└── test/
 ```
 
-## Compile and run the project
+## Arquitetura
 
-```bash
-# development
-$ npm run start
+### Classes Base
 
-# watch mode
-$ npm run start:dev
+O projeto utiliza classes genéricas em `src/core/architecture/` que fornecem funcionalidade CRUD padrão:
 
-# production mode
-$ npm run start:prod
+#### AbstractModel
+
+Base para todas as entities:
+
+```typescript
+export abstract class AbstractModel {
+  id: number | string;
+}
 ```
 
-## Run tests
+#### AbstractDTO
 
-```bash
-# unit tests
-$ npm run test
+Base para DTOs com três variantes:
 
-# e2e tests
-$ npm run test:e2e
+```typescript
+// Para respostas (GET) - usa @Exclude/@Expose para controle de campos
+@Exclude()
+export abstract class AbstractResponseDTO {
+  @Expose()
+  id: number | string;
+}
 
-# test coverage
-$ npm run test:cov
+// Para criação (POST)
+export abstract class AbstractCreateDTO {}
+
+// Para atualização (PUT/PATCH)
+export abstract class AbstractUpdateDTO {
+  id?: number | string;
+}
 ```
 
-## Deployment
+#### GenericCrudService
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Service genérico com operações CRUD completas:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+```typescript
+@Injectable()
+export class GenericCrudService<T extends AbstractModel> {
+  constructor(protected readonly repository: Repository<T>) {}
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+  async getAll(): Promise<T[]>
+  async getById(id: number | string): Promise<T | null>
+  async create(data: DeepPartial<T>): Promise<T>
+  async update(id: number, data: Partial<T>): Promise<T | null>
+  async delete(id: number): Promise<boolean>
+  async getPaginated(page?, limit?): Promise<{ data: T[]; total: number }>
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+#### GenericCrudController
 
-## Resources
+Controller genérico com endpoints REST e Swagger:
 
-Check out a few resources that may come in handy when working with NestJS:
+```typescript
+@Controller()
+export class GenericCrudController<
+  T extends AbstractModel,
+  ResponseDTO extends AbstractResponseDTO,
+  CreateDTO extends AbstractCreateDTO,
+  UpdateDTO extends AbstractUpdateDTO,
+> {
+  // GET /           - Buscar todos
+  // GET /paged      - Buscar paginado
+  // GET /:id        - Buscar por ID
+  // POST /          - Criar
+  // PUT /:id        - Atualizar
+  // DELETE /:id     - Deletar
+}
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Gerando Novos Resources
 
-## Support
+Use o script de geração para criar novos módulos seguindo a arquitetura:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+npm run generate:resource product
+npm run generate:resource user-profile
+npm run generate:resource order
+```
 
-## Stay in touch
+O script cria a seguinte estrutura:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```
+src/models/product.entity.ts           # Entity (TypeORM) - centralizada
+
+src/resources/product/
+├── dto/
+│   ├── create-product.dto.ts          # Extende AbstractCreateDTO
+│   ├── update-product.dto.ts          # Usa PartialType
+│   ├── product-response.dto.ts        # Extende AbstractResponseDTO
+│   └── index.ts
+├── product.controller.ts              # Extende GenericCrudController
+├── product.service.ts                 # Extende GenericCrudService
+└── product.module.ts
+```
+
+### Após gerar o resource:
+
+1. **Adicione o módulo no `app.module.ts`:**
+
+```typescript
+import { ProductModule } from './resources/product/product.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    ProductModule, // Adicione aqui
+  ],
+})
+export class AppModule {}
+```
+
+2. **Complete os campos na entity e DTOs**
+
+3. **Gere a migration:**
+
+```bash
+npm run typeorm migration:generate ./database/migrations/CreateProduct -d ./database/ormconfig.ts
+npm run migration:up
+```
+
+## Scripts Disponíveis
+
+```bash
+# Desenvolvimento
+npm run start:dev       # Inicia em modo watch
+npm run start:debug     # Inicia com debugger
+
+# Build e Produção
+npm run build           # Compila o projeto
+npm run start:prod      # Inicia em produção
+
+# Testes
+npm run test            # Testes unitários
+npm run test:watch      # Testes em modo watch
+npm run test:cov        # Cobertura de testes
+npm run test:e2e        # Testes end-to-end
+
+# Banco de Dados
+npm run migration:create [nome]     # Cria migration vazia
+npm run migration:generate [nome]   # Gera migration a partir das entities
+npm run migration:up                # Executa migrations pendentes
+npm run migration:revert            # Reverte última migration
+
+# Geração de Código
+npm run generate:resource [nome]    # Gera novo módulo CRUD
+
+# Qualidade
+npm run lint            # Executa ESLint
+npm run format          # Formata código com Prettier
+```
+
+## Configuração
+
+### Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do backend:
+
+```env
+# Servidor
+PORT=3000
+API_PREFIX=api/v1
+
+# Banco de Dados
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=sua_senha
+DB_DATABASE=nome_do_banco
+
+# CORS
+CORS_ORIGINS=http://localhost:3000,http://localhost:4200
+
+# JWT (se aplicável)
+JWT_SECRET=sua_chave_secreta
+```
+
+### Banco de Dados
+
+O projeto usa PostgreSQL com TypeORM. Configuração em `database/ormconfig.ts`.
+
+As entities são automaticamente carregadas de `src/models/*.{ts,js}`.
+
+Para ambiente local com Docker:
+
+```bash
+docker-compose up -d
+```
+
+## API Documentation
+
+A documentação Swagger está disponível em:
+
+```
+http://localhost:3000/api/docs
+```
+
+## Exemplo de Uso
+
+### Criando um Resource "Product"
+
+1. **Gerar arquivos:**
+
+```bash
+npm run generate:resource product
+```
+
+2. **Editar a entity (`src/models/product.entity.ts`):**
+
+```typescript
+@Entity('products')
+export class Product extends AbstractModel {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  price: number;
+
+  @Column({ default: true })
+  active: boolean;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
+}
+```
+
+3. **Editar o CreateDTO (`src/resources/product/dto/create-product.dto.ts`):**
+
+```typescript
+export class CreateProductDto extends AbstractCreateDTO {
+  @ApiProperty({ description: 'Nome do produto' })
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @ApiProperty({ description: 'Preço do produto' })
+  @IsNumber()
+  @Min(0)
+  price: number;
+}
+```
+
+4. **Editar o ResponseDTO (`src/resources/product/dto/product-response.dto.ts`):**
+
+```typescript
+export class ProductResponseDto extends AbstractResponseDTO {
+  @Expose()
+  @ApiProperty()
+  id: number;
+
+  @Expose()
+  @ApiProperty()
+  name: string;
+
+  @Expose()
+  @ApiProperty()
+  price: number;
+
+  @Expose()
+  @ApiProperty()
+  active: boolean;
+
+  @Expose()
+  @ApiProperty()
+  createdAt: Date;
+}
+```
+
+5. **Registrar no app.module.ts e gerar migration**
+
+## Tecnologias
+
+- **NestJS** v11 - Framework Node.js
+- **TypeORM** v0.3 - ORM para banco de dados
+- **PostgreSQL** - Banco de dados
+- **Swagger** - Documentação da API
+- **class-validator** - Validação de DTOs
+- **class-transformer** - Transformação de objetos
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+[MIT licensed](LICENSE)

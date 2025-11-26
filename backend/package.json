@@ -23,7 +23,8 @@
     "migration:generate": "typeorm migration:generate",
     "migration:create": "npm run typeorm migration:create ./database/migrations/",
     "migration:up": "npx typeorm-ts-node-commonjs migration:run -d ./database/ormconfig.ts",
-    "migration:revert": "npx typeorm-ts-node-commonjs migration:revert -d ./database/ormconfig.ts"
+    "migration:revert": "npx typeorm-ts-node-commonjs migration:revert -d ./database/ormconfig.ts",
+    "generate:resource": "npx ts-node src/core/scripts/generate-resource.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
