@@ -7,28 +7,6 @@
 
 services:
   # ================================================
-  # PostgreSQL 15
-  # ================================================
-  postgres:
-    image: postgres:15-alpine
-    container_name: app_postgres_prod
-    environment:
-      POSTGRES_DB: ${DB_DATABASE}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_INITDB_ARGS: '--encoding=UTF8'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - app_network
-    restart: unless-stopped
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME}']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # ================================================
   # Backend (NestJS API)
   # ================================================
   backend:
@@ -37,8 +15,8 @@ services:
     container_name: app_backend_prod
     environment:
       NODE_ENV: production
-      DB_HOST: postgres
-      DB_PORT: 5432
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
       DB_DATABASE: ${DB_DATABASE}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
