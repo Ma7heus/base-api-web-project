@@ -22,9 +22,6 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
-    depends_on:
-      postgres:
-        condition: service_healthy
     networks:
       - app_network
     restart: unless-stopped
