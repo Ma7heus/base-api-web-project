@@ -25,7 +25,7 @@ const AppDataSource = new DataSource({
       }
     : {
         connectionLimit: 50,
-        ssl: { rejectUnauthorized: true },
+        ssl: false, //alterar para { rejectUnauthorized: true } em prod
       },
 });
 
