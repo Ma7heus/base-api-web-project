@@ -8,43 +8,30 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copiar arquivos de dependências
-COPY package*.json ./
-
-# Instalar dependências
+COPY package.json package-lock.json ./
 RUN npm ci
 
-# Copiar código fonte
+# Instalar dependências
 COPY . .
-
-# Build da aplicação para produção
 RUN npm run build -- --configuration production
 
-# Stage 2: Production com Nginx
-FROM nginx:alpine AS production
+# ----------- ETAPA 2: Imagem final com Nginx (imagem nginx:alpine) -----------
+FROM nginx:alpine
 
-# Criar diretórios temporários para nginx não-root
-RUN mkdir -p /tmp/nginx/client_temp \
-    /tmp/nginx/proxy_temp \
-    /tmp/nginx/fastcgi_temp \
-    /tmp/nginx/uwsgi_temp \
-    /tmp/nginx/scgi_temp && \
-    chown -R nginx:nginx /tmp/nginx && \
-    chmod -R 755 /tmp/nginx
+# 2.1) Instala o curl (para o healthcheck do Coolify)
+RUN apk add --no-cache curl
 
-# Copiar configuração customizada do nginx
-COPY nginx.conf /etc/nginx/nginx.conf
+# 2.2) Remove a configuração padrão que exibe o “Welcome to nginx!”
+RUN rm /etc/nginx/conf.d/default.conf || true
 
-# Copiar build do stage anterior
-COPY --from=builder /app/dist/frontend/browser /usr/share/nginx/html
+# 2.3) Copia nosso default.conf customizado para /etc/nginx/conf.d/
+COPY default.conf /etc/nginx/conf.d/default.conf
 
-# Ajustar permissões dos arquivos estáticos
-RUN chown -R nginx:nginx /usr/share/nginx/html
+# 2.4) Copia toda a build do Angular para o diretório padrão de arquivos estáticos
+COPY --from=build /app/dist/eproc-web/browser /usr/share/nginx/html
 
-# Trocar para usuário não-root
-USER nginx
+# 2.5) Informa que o container “ouve” a porta 80
+EXPOSE 80
 
-# Expor porta (será ignorada pelo Coolify)
-EXPOSE 8080
-
-# Comando para iniciar o nginx
+# 2.6) Inicia o Nginx
 CMD ["nginx", "-g", "daemon off;"]
