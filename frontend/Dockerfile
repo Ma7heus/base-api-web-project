@@ -28,7 +28,7 @@ RUN rm /etc/nginx/conf.d/default.conf || true
 COPY default.conf /etc/nginx/conf.d/default.conf
 
 # 2.4) Copia toda a build do Angular para o diretório padrão de arquivos estáticos
-COPY --from=build /app/dist/eproc-web/browser /usr/share/nginx/html
+COPY --from=build /app/dist/frontend/browser /usr/share/nginx/html
 
 # 2.5) Informa que o container “ouve” a porta 80
 EXPOSE 80
